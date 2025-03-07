@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nym-os</title>
+  <style>
+    /* Fundalul cu efect Matrix */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+      font-family: 'Courier New', Courier, monospace;
+      color: #0F0; /* text verde neon */
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    /* Stilizarea interfeței */
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding-top: 50px;
+    }
+    .section {
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 500px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,255,0,0.5);
+      border: 1px solid #0F0;
+    }
+    input[type="file"] {
+      background: transparent;
+      color: #0F0;
+      border: 1px solid #0F0;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #0F0;
+      color: black;
+      border: none;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #0c0;
+    }
+    /* Animatie de fade in */
+    .fade-in {
+      animation: fadeIn 2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas pentru efectul Matrix -->
+  <canvas id="matrixCanvas"></canvas>
+
+  <div class="container">
+    <!-- Secțiunea de încărcare a imaginii -->
+    <div id="uploadSection" class="section">
+      <h2>Upload the image you found in the previous clue</h2>
+      <input type="file" id="imageInput" accept="image/*">
+    </div>
+
+    <!-- Secțiunea afișată după încărcare -->
+    <div id="accessSection" class="section" style="display: none;">
+      <h2>Access Granted</h2>
+    </div>
+
+    <!-- Secțiunea cu mesajul animat și butonul Next -->
+    <div id="clueSection" class="section fade-in" style="display: none;">
+      <p>Pay attention to what's important from the next clue</p>
+      <button id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <script>
+    // Cod pentru efectul Matrix
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Setează dimensiunea canvas-ului la dimensiunea ferestrei
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = '0123456789';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    // Creează un array de "drop"-uri pentru fiecare coloană
+    const drops = Array(Math.floor(columns)).fill(0);
+
+    function drawMatrix() {
+      // Desenează un fundal semi-transparent pentru efectul de estompare
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0F0';
+      ctx.font = fontSize + 'px monospace';
+      
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        
+        // Resetare aleatorie a "drop"-ului după ce acesta iese din ecran
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    // Logica interfeței
+    const imageInput = document.getElementById('imageInput');
+    const accessSection = document.getElementById('accessSection');
+    const clueSection = document.getElementById('clueSection');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // URL-ul videoclipului de pe Google Drive (înlocuiește YOUR_VIDEO_ID cu ID-ul videoclipului)
+    const googleDriveVideoUrl = "https://drive.google.com/file/d/1oVEdVcG8C24hT_sDlI2le1iCirKMAums/view?usp=drivesdk";
+
+    // Când se selectează o imagine, afișează secțiunea "Access Granted" și apoi mesajul animat
+    imageInput.addEventListener('change', function() {
+      if (imageInput.files && imageInput.files[0]) {
+        accessSection.style.display = 'block';
+        setTimeout(() => {
+          clueSection.style.display = 'block';
+        }, 1000); // întârziere de 1 secundă
+      }
+    });
+
+    // La clic pe "Next", redirecționează către videoclip
+    nextBtn.addEventListener('click', function() {
+      window.location.href = googleDriveVideoUrl;
+    });
+
+    // Ajustează canvas-ul la redimensionarea ferestrei
+    window.addEventListener('resize', function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const newColumns = canvas.width / fontSize;
+      drops.length = Math.floor(newColumns);
+      for (let i = 0; i < drops.length; i++) {
+        drops[i] = 0;
+      }
+    });
+  </script>
+</body>
+</html
